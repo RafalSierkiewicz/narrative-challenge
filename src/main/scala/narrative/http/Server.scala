@@ -10,7 +10,7 @@ import com.comcast.ip4s.*
 import narrative.analytics.{AnalyticsWriter, EventMetricsReader}
 import narrative.analytics.models.{Event, UserId}
 import narrative.analytics.models.UserId.UserId
-import narrative.analytics.EventMetricsReader.EventMetrics
+import narrative.analytics.MetricsStore.EventMetrics
 import org.http4s.server.{Router, Server}
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import org.typelevel.log4cats.{Logger, LoggerFactory}
