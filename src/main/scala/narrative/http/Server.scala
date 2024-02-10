@@ -4,12 +4,13 @@ import cats.effect.{IO, Resource}
 import org.http4s.*
 import org.http4s.dsl.io.*
 
-import java.time.Instant
+import java.time.{Instant, ZoneOffset}
 import org.http4s.ember.server.*
 import com.comcast.ip4s.*
-import narrative.analytics.AnalyticsWriter
+import narrative.analytics.{AnalyticsWriter, EventMetricsReader}
 import narrative.analytics.models.{Event, UserId}
 import narrative.analytics.models.UserId.UserId
+import narrative.analytics.EventMetricsReader.EventMetrics
 import org.http4s.server.{Router, Server}
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import org.typelevel.log4cats.{Logger, LoggerFactory}
@@ -26,21 +27,37 @@ object Server {
   private object UserIdQueryMatcher extends QueryParamDecoderMatcher[UserId]("user_id")
   private object EventQueryMatcher extends QueryParamDecoderMatcher[Event]("event")
 
-  private def routes(writer: AnalyticsWriter): HttpRoutes[IO] = HttpRoutes.of[IO] {
+  private def routes(writer: AnalyticsWriter, reader: EventMetricsReader): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case POST -> Root :? InstantQueryMatcher(timestamp) +& UserIdQueryMatcher(userId) +& EventQueryMatcher(event) =>
       writer
         .write(userId, event, timestamp)
         .flatMap(_ => NoContent())
-        .onError(err => logger.error(err)("Errro"))
+        .onError(err => logger.error(err)("Error"))
+
     case GET -> Root :? InstantQueryMatcher(timestamp) =>
-      Ok()
+      reader
+        .getMetrics(timestamp.atZone(ZoneOffset.UTC).toInstant)
+        .map(metricsToTxt)
+        .flatMap(Ok(_))
+        .onError(err => logger.error(err)("Error"))
+
   }
 
-  def make(writer: AnalyticsWriter): Resource[IO, Server] = EmberServerBuilder
+  private def metricsToTxt(metrics: EventMetrics): String =
+    s"""
+       |unique_users,${metrics.uniqueUsers}
+       |${metrics.eventsCount
+        .map {
+          case (Event.CLICK, count)      => s"clicks,$count"
+          case (Event.IMPRESSION, count) => s"impressions,$count"
+        }
+        .mkString("\n")}""".stripMargin
+
+  def make(writer: AnalyticsWriter, reader: EventMetricsReader): Resource[IO, Server] = EmberServerBuilder
     .default[IO]
     .withHost(ipv4"0.0.0.0")
     .withPort(port"8080")
-    .withHttpApp(Router("/analytics" -> routes(writer)).orNotFound)
+    .withHttpApp(Router("/analytics" -> routes(writer, reader)).orNotFound)
     .build
 
 }

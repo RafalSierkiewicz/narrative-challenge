@@ -2,7 +2,7 @@ import cats.effect.{ExitCode, IO, IOApp, Resource, Sync}
 import narrative.http.Server
 import doobie.h2.*
 import doobie.ExecutionContexts
-import narrative.analytics.AnalyticsWriter
+import narrative.analytics.{AnalyticsWriter, EventMetricsReader}
 import org.flywaydb.core.Flyway
 
 object NarrativeChallenge extends IOApp {
@@ -10,7 +10,7 @@ object NarrativeChallenge extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     (for {
       xa <- makeXa
-      server <- Server.make(AnalyticsWriter.live(xa))
+      server <- Server.make(AnalyticsWriter.live(xa), EventMetricsReader.live(xa))
     } yield server).useForever
       .as(ExitCode.Success)
   }

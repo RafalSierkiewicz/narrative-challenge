@@ -9,6 +9,7 @@ val dependencies: Seq[ModuleID] = Seq(
   "org.http4s" %% "http4s-dsl" % http4sVersion,
   "org.typelevel" %% "cats-effect" % "3.5.3",
   "io.circe" %% "circe-core" % "0.14.5",
+  "io.circe" %% "circe-parser" % "0.14.5",
   "org.typelevel" %% "log4cats-slf4j" % "2.6.0",
   "ch.qos.logback" % "logback-classic" % "1.4.7",
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC4",
