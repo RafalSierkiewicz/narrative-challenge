@@ -18,7 +18,7 @@ object AnalyticsWriter {
     override def write(userId: UserId, event: Event, at: Instant): IO[Unit] = {
       val updateQuery =
         sql"""INSERT INTO events(user_id, event, at)
-          VALUES (${userId.value}, ${event.value}, $at)
+          | VALUES (${userId.value}, ${event.value}, $at)
            """.stripMargin
 
       updateQuery.update.run.transact(xa).void

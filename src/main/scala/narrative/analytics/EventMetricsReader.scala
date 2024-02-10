@@ -22,7 +22,7 @@ object EventMetricsReader {
     def empty: EventMetrics = EventMetrics(0, Event.values.map(_ -> 0L).toMap)
   }
 
-  private given KeyDecoder[Event] = KeyDecoder.decodeKeyString.map(Event.valueOf)
+  private given KeyDecoder[Event] = KeyDecoder.decodeKeyString.map(str => Event.valueOf(str.toUpperCase))
   private given Read[EventMetrics] = Read[(Long, String)]
     .map { case (count, jsonMap) =>
       val countMap = io.circe.parser

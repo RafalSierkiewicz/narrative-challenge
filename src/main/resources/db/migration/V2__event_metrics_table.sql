@@ -1,7 +1,6 @@
 CREATE TABLE IF NOT EXISTS event_metrics (
     timestamp timestamp with time zone,
     user_count bigint,
-    events_count text
+    events_count text,
+    PRIMARY KEY (timestamp)
 );
-
-CREATE INDEX timestamp_metrics_idx ON event_metrics(timestamp);

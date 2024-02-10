@@ -13,10 +13,11 @@ val dependencies: Seq[ModuleID] = Seq(
   "org.typelevel" %% "log4cats-slf4j" % "2.6.0",
   "ch.qos.logback" % "logback-classic" % "1.4.7",
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC4",
-  "org.tpolecat" %% "doobie-h2" % "1.0.0-RC4",
   "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4",
   "org.flywaydb" % "flyway-core" % "10.7.2",
-  "com.h2database" % "h2" % "2.2.220"
+  "org.postgresql" % "postgresql" % "42.7.1",
+  "org.flywaydb" % "flyway-database-postgresql" % "10.7.2" 
+
 )
 
 lazy val root = (project in file("."))
