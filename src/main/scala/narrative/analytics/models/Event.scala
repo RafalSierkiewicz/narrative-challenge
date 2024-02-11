@@ -6,7 +6,7 @@ enum Event(val value: String) {
 }
 
 object Event {
-  def fromString(str: String): Either[String, Event] = str match
+  def fromString(str: String): Either[String, Event] = str.toLowerCase match
     case CLICK.value      => Right(CLICK)
     case IMPRESSION.value => Right(IMPRESSION)
     case other            => Left(s"Wrong value for Event. Got $other available ${Event.values.mkString(",")}")

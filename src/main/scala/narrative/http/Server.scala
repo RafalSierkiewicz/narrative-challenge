@@ -24,7 +24,7 @@ object Server {
     QueryParamDecoder[String].emap(Event.fromString(_).left.map(error => ParseFailure(error, error)))
 
   private object InstantQueryMatcher extends QueryParamDecoderMatcher[Instant]("timestamp")
-  private object UserIdQueryMatcher extends QueryParamDecoderMatcher[UserId]("user_id")
+  private object UserIdQueryMatcher extends QueryParamDecoderMatcher[UserId]("user")
   private object EventQueryMatcher extends QueryParamDecoderMatcher[Event]("event")
 
   private def routes(writer: AnalyticsWriter, reader: EventMetricsReader): HttpRoutes[IO] = HttpRoutes.of[IO] {

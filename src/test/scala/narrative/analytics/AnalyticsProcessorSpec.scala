@@ -4,18 +4,17 @@ import cats.effect.{IO, Resource}
 import munit.CatsEffectSuite
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import com.dimafeng.testcontainers.munit.TestContainerForAll
-import doobie.util.transactor.Transactor
-import doobie.util.update.Update
-import org.flywaydb.core.Flyway
-import org.testcontainers.utility.DockerImageName
 import cats.implicits.*
 import fs2.concurrent.SignallingRef
 import narrative.analytics.models.{Event, UserId}
 import narrative.analytics.MetricsStore.EventMetrics
 import narrative.db.Stores
+import narrative.TestUtils
+
 import scala.concurrent.duration.*
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import scala.util.Random
 
 class AnalyticsProcessorSpec extends CatsEffectSuite with TestContainerForAll {
 
@@ -23,20 +22,13 @@ class AnalyticsProcessorSpec extends CatsEffectSuite with TestContainerForAll {
     Resource
       .eval(IO {
         withContainers { postgres =>
-          makeTransactor(postgres)
+          TestUtils.makeTransactor(postgres)
         }
       })
       .flatten
   }
 
-  override val containerDef: PostgreSQLContainer.Def = {
-    PostgreSQLContainer.Def(
-      DockerImageName.parse("postgres:15-alpine"),
-      databaseName = "postgres",
-      username = "postgres",
-      password = "postgres"
-    )
-  }
+  override val containerDef: PostgreSQLContainer.Def = TestUtils.containerDef
 
   transactor.test("should calculate metrics") { xa =>
     val stores = Stores.make(xa)
@@ -77,38 +69,4 @@ class AnalyticsProcessorSpec extends CatsEffectSuite with TestContainerForAll {
     )
   }
 
-  def makeTransactor(container: PostgreSQLContainer): Resource[IO, Transactor[IO]] = {
-    import doobie.implicits.*
-    val dbHost = container.host
-    val dbPort = container.mappedPort(container.exposedPorts.head)
-    val url = s"jdbc:postgresql://$dbHost:$dbPort/postgres?tcpKeepAlive=true&targetServerType=primary&currentSchema=test"
-
-    for {
-      xa <- Resource.pure(
-        Transactor.fromDriverManager[IO](
-          driver = "org.postgresql.Driver",
-          url = url,
-          user = "postgres",
-          password = "postgres",
-          logHandler = None
-        )
-      )
-      _ <- Resource.eval(Update[Unit](s"DROP SCHEMA IF EXISTS test CASCADE").run(()).transact(xa))
-      _ <- Resource.eval(runMigrations(url))
-    } yield xa
-  }
-
-  private def runMigrations(url: String) = {
-    IO(
-      Flyway
-        .configure()
-        .loggers("slf4j")
-        .dataSource(url, "postgres", "postgres")
-    )
-      .map { flywayConfig =>
-        val flyway = flywayConfig.load()
-        flyway.migrate()
-        flyway.validate()
-      }
-  }
 }

@@ -20,7 +20,7 @@ trait AnalyticsProcessor {
 object AnalyticsProcessor {
   private val logger: Logger[IO] = Slf4jLogger.getLogger[IO]
 
-  final case class ProcessorConfig(interval: FiniteDuration = 1.second, batchSize: Int = 10_000)
+  final case class ProcessorConfig(interval: FiniteDuration = 500.milli, batchSize: Int = 10_000)
 
   def live(analyticsStore: AnalyticsStore, metricsStore: MetricsStore, config: ProcessorConfig = ProcessorConfig()): IO[AnalyticsProcessor] = {
     // Ref is used as a memory of last processed event as it is something like projection, in real life - database table
