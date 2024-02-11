@@ -16,8 +16,10 @@ val dependencies: Seq[ModuleID] = Seq(
   "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4",
   "org.flywaydb" % "flyway-core" % "10.7.2",
   "org.postgresql" % "postgresql" % "42.7.1",
-  "org.flywaydb" % "flyway-database-postgresql" % "10.7.2" 
-
+  "org.flywaydb" % "flyway-database-postgresql" % "10.7.2",
+  "org.typelevel" %% "munit-cats-effect" % "2.0.0-M4" % Test,
+  "com.dimafeng" %% "testcontainers-scala-munit" % "0.40.17" % Test,
+  "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.40.17" % Test
 )
 
 lazy val root = (project in file("."))

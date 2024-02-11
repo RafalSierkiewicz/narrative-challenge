@@ -11,7 +11,7 @@ import scala.collection.Map
 trait AnalyticsStore {
   def store(userId: UserId, event: Event, at: Instant): IO[Unit]
   def getAnalytics(fromExclusive: Long, count: Long): fs2.Stream[IO, AnalyticData]
-  def getMetrics(from: Instant, toOrderingInclusive: Long): IO[AnalyticsMetrics]
+  def getMetrics(fromInclusive: Instant, toExclusive: Instant): IO[AnalyticsMetrics]
 }
 
 object AnalyticsStore {

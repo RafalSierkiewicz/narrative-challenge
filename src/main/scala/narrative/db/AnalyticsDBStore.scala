@@ -20,25 +20,27 @@ class AnalyticsDBStore(xa: Transactor[IO]) extends AnalyticsStore {
     updateQuery.update.run.transact(xa).void
   }
 
-  override def getMetrics(from: Instant, toOrderingInclusive: Long): IO[AnalyticsMetrics] = {
+  override def getMetrics(fromInclusive: Instant, toExclusive: Instant): IO[AnalyticsMetrics] = {
     val query =
       sql"""SELECT COUNT(DISTINCT user_id),
            |  COUNT(event) filter ( where event = ${Event.CLICK.value}),
            |  COUNT(event) filter ( where event =  ${Event.IMPRESSION.value})
            | FROM events 
-           | WHERE at >= $from AND ordering <= $toOrderingInclusive """.stripMargin
+           | WHERE at >= $fromInclusive AND at < $toExclusive """.stripMargin
 
     query
       .query[(Long, Long, Long)]
-      .map { case (l1, l2, l3) => AnalyticsMetrics(l1, Map(Event.CLICK -> l2, Event.IMPRESSION -> l3)) }
+      .map { case (l1, l2, l3) =>
+        AnalyticsMetrics(l1, Map(Event.CLICK -> l2, Event.IMPRESSION -> l3))
+      }
       .option
       .map(_.getOrElse(AnalyticsMetrics(0, Map.empty)))
       .transact(xa)
   }
 
-  override def getAnalytics(fromExclusive: Long, count: Long ): fs2.Stream[IO, AnalyticData] = {
+  override def getAnalytics(fromExclusive: Long, count: Long): fs2.Stream[IO, AnalyticData] = {
     val query =
-      sql"""SELECT ordering, at FROM events WHERE ordering > $fromExclusive LIMIT $count """.stripMargin
+      sql"""SELECT ordering, at FROM events WHERE ordering > $fromExclusive ORDER BY ordering LIMIT $count """.stripMargin
 
     query
       .query[(Long, Instant)]
