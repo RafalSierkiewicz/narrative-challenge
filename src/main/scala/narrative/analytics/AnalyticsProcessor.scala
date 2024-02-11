@@ -18,8 +18,6 @@ trait AnalyticsProcessor {
 }
 
 object AnalyticsProcessor {
-  private val logger: Logger[IO] = Slf4jLogger.getLogger[IO]
-
   final case class ProcessorConfig(interval: FiniteDuration = 500.milli, batchSize: Int = 10_000)
 
   def live(analyticsStore: AnalyticsStore, metricsStore: MetricsStore, config: ProcessorConfig = ProcessorConfig()): IO[AnalyticsProcessor] = {

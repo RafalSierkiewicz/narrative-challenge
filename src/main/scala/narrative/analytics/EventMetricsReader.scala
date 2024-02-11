@@ -16,10 +16,11 @@ trait EventMetricsReader {
 }
 
 object EventMetricsReader {
-  def live(store: MetricsStore): EventMetricsReader = new EventMetricsReader:
+  def live(store: MetricsStore): EventMetricsReader = new EventMetricsReader {
     override def getMetrics(at: Instant): IO[EventMetrics] = {
       val timestampFor = at.truncatedTo(ChronoUnit.HOURS)
 
       store.find(timestampFor)
     }
+  }
 }
