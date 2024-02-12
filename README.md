@@ -3,8 +3,8 @@
 ### Solution architecture
 
 The main goal of the solution was to provide as fast as possible writes. To achieve it, writing and reading parts are  
-separated. During writing, no other operations, except saving to the database, are being done. On the other hand, during reading  
-part only read from the database is being performed. To connect those two pieces, the so-called processor has been introduced.  
+separated. During writing, no other operations, except saving to the database, are being done. On the other hand,  
+during reading part only read from the database is being performed. To connect those two pieces, the so-called processor has been introduced.  
 The processor is a projection, which reads analytics data (events) from the store and once in a while performs data analysis.  
 To get the high-level overview of the solution, please check the diagram.
 
@@ -27,6 +27,6 @@ To run the challenge, make sure that no other postgres instance is running in do
 2. Run sbt  
 ```sbt run```
 
-Default postgres connection url is `localhost:5432/narrative` while http server starts on `localhost:8080`. If the server  
-is not able to connect to postgres, the initial postgres db script might not have been executed. Stop previous postgres  
-instance with `docker stop {id_of_postgres_docker_container}`
+Default postgres connection url is `localhost:5432/narrative` while http server starts on `localhost:8080`.  
+If the server is not able to connect to postgres, the initial postgres db script might not have been executed.  
+Stop previous postgres instance with `docker stop {id_of_postgres_docker_container}`
