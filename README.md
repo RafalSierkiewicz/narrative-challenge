@@ -9,6 +9,11 @@ The processor is a projection, which reads analytics data (events) from the stor
 To get the high-level overview of the solution, please check the diagram.
 
 
+![Solution design](narrative.png "Design")
+
+The solution suffers from eventual consistency where read after write might result with an incorrect result, but after  
+while everything should be correct. Thanks to that it is much more scalable.
+
 ### Databases choice
 Postgres database has been chosen as a main database for the challenge to not overcomplicate the solution.  
 For that particular usecase it is not ideal. In the realworld scenario, one of the timeseries databases would be better.  
