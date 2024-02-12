@@ -29,6 +29,7 @@ val dependencies: Seq[ModuleID] = Seq(
 lazy val root = (project in file("."))
   .settings(
     name := "narrative",
+    Compile / mainClass := Some("narrative.NarrativeChallenge"),
     libraryDependencies ++= dependencies
   )
   .enablePlugins(GatlingPlugin)

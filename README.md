@@ -1,31 +1,27 @@
-As a part of integrating with our partners,
-Narrative supports collecting data on website visitors and returning some basic analytics on those visitors.
-The goal of this task is to implement a basic endpoint for this use case.
-It should accept the following over HTTP:
+## Narrative challenge
 
-POST /analytics?timestamp={millis_since_epoch}&user={user_id}&event={click|impression}
-GET /analytics?timestamp={millis_since_epoch}
+### Solution architecture
 
-When the POST request is made, a 204 is returned to the client with an empty response.
-We simply side-effect and track the event in our data store.
+The main goal of the solution was to provide as fast as possible writes. To achieve it, writing and reading parts are  
+separated. During writing, no other operations, except saving to the database, are being done. On the other hand, during reading  
+part only read from the database is being performed. To connect those two pieces, the so-called processor has been introduced.  
+The processor is a projection, which reads analytics data (events) from the store and once in a while performs data analysis.  
+To get the high-level overview of the solution, please check the diagram.
 
-When the GET request is made, we return information in the following format to the client,
-for the hour (assuming GMT time zone) of the requested timestamp:
 
-unique_users,{number_of_unique_usernames}
-clicks,{number_of_clicks}
-impressions,{number_of_impressions}
+### Databases choice
+Postgres database has been chosen as a main database for the challenge to not overcomplicate the solution.  
+For that particular usecase it is not ideal. In the realworld scenario, one of the timeseries databases would be better.  
+The main issue with postgres is poor performance during `distinct` queries, because of lack of the `loose indexscan` feature.
 
-It is worth noting that the traffic pattern is typical of time series data.
-The service will receive many more GET requests (~95%) for the current hour than for past hours (~5%).
-The same applies for POST requests.
+### Running challenge
+To run the challenge, make sure that no other postgres instance is running in docker.
 
-Please ensure that the code in the submission is fully functional on a local machine,
-and include instructions for building and running it.
-Although it should still pass muster in code review,
-it is fine for the code to not be completely production ready in the submission.
-For example, using local storage like in-memory H2 instead of dedicated MySQL is OK.
-As a guide for design decisions,
-treat this exercise as the initial prototype of an MVP
-that will need to be productionalized and scaled out in the future,
-and be prepared for follow-up discussion on how that would look.
+1. Start postgres with docker  
+```docker-compose up```
+2. Run sbt  
+```sbt run```
+
+Default postgres connection url is `localhost:5432/narrative` while http server starts on `localhost:8080`. If the server  
+is not able to connect to postgres, the initial postgres db script might not have been executed. Stop previous postgres  
+instance with `docker stop {id_of_postgres_docker_container}`
