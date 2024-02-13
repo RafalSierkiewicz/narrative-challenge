@@ -12,7 +12,12 @@ To get the high-level overview of the solution, please check the diagram.
 ![Solution design](narrative.png "Design")
 
 The solution suffers from eventual consistency where read after write might result with an incorrect result, but after  
-while everything should be correct. Thanks to that it is much more scalable.
+while everything should be correct. Thanks to that, it is much more scalable.
+
+#### Solution future improvements
+Next iterations of solution improvements would focus on providing much higher writing speed. To do this message broker ex. Kafka can
+be used. Thanks to that, we have better separation between writing and processing metrics. Moreover `writer` can write to primary
+postgres node whereas `reader` can read from postgres read instance. 
 
 ### Databases choice
 Postgres database has been chosen as a main database for the challenge to not overcomplicate the solution.  
