@@ -11,7 +11,7 @@ import narrative.analytics.AnalyticsStore.{AnalyticData, AnalyticsMetrics}
 
 import java.time.Instant
 
-class AnalyticsDBStore(xa: Transactor[IO]) extends AnalyticsStore {
+private[db] class AnalyticsDBStore(xa: Transactor[IO]) extends AnalyticsStore {
   override def store(userId: UserId, event: Event, at: Instant): IO[Unit] = {
     val updateQuery = sql"""INSERT INTO events(user_id, event, at)
            | VALUES (${userId.value}, ${event.value}, $at)

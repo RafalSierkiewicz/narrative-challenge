@@ -13,7 +13,7 @@ import narrative.analytics.MetricsStore.EventMetrics
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class MetricsDBStore(xa: Transactor[IO]) extends MetricsStore {
+private[db] class MetricsDBStore(xa: Transactor[IO]) extends MetricsStore {
   private given KeyDecoder[Event] = KeyDecoder.decodeKeyString.map(str => Event.valueOf(str.toUpperCase))
   private given Read[EventMetrics] = Read[(Long, String)]
     .map { case (count, jsonMap) =>

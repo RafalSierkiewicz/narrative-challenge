@@ -3,7 +3,7 @@ package narrative
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import doobie.Transactor
 import narrative.http.Server
-import narrative.analytics.{AnalyticsProcessor, AnalyticsWriter, EventMetricsReader}
+import narrative.analytics.{Analytics, AnalyticsProcessor, AnalyticsWriter, EventMetricsReader}
 import narrative.db.Stores
 import org.flywaydb.core.Flyway
 import org.http4s.server.Server
@@ -19,10 +19,10 @@ object NarrativeChallenge extends IOApp {
     for {
       xa <- makeXa(url, user, password)
       stores = Stores.make(xa)
-      processor <- Resource.eval(AnalyticsProcessor.live(stores.analytics, stores.metrics).flatMap(_.run.start))
+      analytics <- Analytics.make(stores)
       server <- Server
-        .make(AnalyticsWriter.live(stores.analytics), EventMetricsReader.live(stores.metrics))
-        .onFinalize(processor.cancel)
+        .make(analytics.writer, analytics.reader)
+        .onFinalize(analytics.processorRef.cancel)
     } yield server
   }
 
