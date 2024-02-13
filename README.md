@@ -29,7 +29,7 @@ To run the challenge, make sure that no other postgres instance is running in do
 
 1. Start postgres with docker  
 ```docker-compose up```
-2. Run sbt  
+2. In another terminal - Run sbt  
 ```sbt run```
 
 Default postgres connection url is `localhost:5432/narrative` while http server starts on `localhost:8080`.  
